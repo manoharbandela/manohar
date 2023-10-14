@@ -1,0 +1,44 @@
+trigger:
+- '*'
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'C:\SampleAPP'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/backup-$(Build.BuildId)'
+    CleanTargetFolder: true
+    OverWrite: true
+  displayName: 'Backup Existing Deployment'
+
+- script: |
+    # Replace this with your logic to check if deployment should be done
+    if [logic_to_check_if_deployment_needed]; then
+      echo "Deployment needed"
+      # Insert your logic to stop App Pool and Website in IIS here
+      # Insert your logic to build the repo here
+      # Insert your logic to replace new DLLs in Deployment folder
+      # Insert your logic to start App Pool and Website in IIS here
+    else
+      echo "No deployment needed"
+    fi
+  displayName: 'Deploy App'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Insert your logic to check if deployment was successful
+      if [deployment_successful_check]; then
+        echo "Deployment was successful"
+        # Insert your logic to restart App Pool and Website in IIS
+      else
+        echo "Deployment failed - Rolling back"
+        # Insert your logic to rollback deployment from the backup
+        # Insert your logic to restart App Pool and Website in IIS
+        exit 1
+      fi
+  displayName: 'Verify Deployment Success and Rollback if Necessary'
